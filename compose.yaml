@@ -1,0 +1,68 @@
+---
+configs:
+  dot-env:
+    file: ./.env
+services:
+  meetable: &meet
+    build: .
+    ports:
+      - 8000:8000
+    configs:
+      - source: dot-env
+        target: /var/www/meetable/.env
+    environment:
+      - ALLOW_MANAGE_EVENTS
+      - ALLOW_MANAGE_SITE
+      - APP_KEY
+      - APP_NAME
+      - APP_URL
+      - AUTH_METHOD
+      - DB_CONNECTION
+      - DB_DATABASE
+      - DB_HOST
+      - DB_PASSWORD
+      - DB_PORT
+      - DB_USERNAME
+      - FILESYSTEM_DRIVER
+    volumes:
+      - storage:/var/www/meetable/storage
+      - sqlite:/var/database
+    develop:
+      watch:
+        - path: ./docker-root
+          action: rebuild
+        - path: ./Dockerfile
+          action: rebuild
+        - path: ./artisan
+          action: rebuild
+  setup:
+    <<: *meet
+    ports: []
+    entrypoint:
+      - /bin/sh
+      - -c
+    command:
+      - |
+        [ -z ${DO_SETUP} ] && exit 0;
+        echo php artisan migrate;
+        sleep 100;
+        echo done;
+    restart: on-failure
+    environment:
+      - DO_SETUP
+  mysql:
+    image: mariadb
+    volumes:
+      - db-data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=$DB_PASSWORD
+      - MYSQL_DATABASE=$DB_DATABASE
+      - MYSQL_USER=$DB_USERNAME
+      - MYSQL_PASSWORD=$DB_PASSWORD
+    expose:
+      - 3306
+volumes:
+  storage:
+  sqlite:
+  db-data:

@@ -350,6 +350,24 @@ heroku config:set ...
 ...
 ```
 
+## Docker
+
+Build `docker build -t meetable .`
+
+See the `compose.yaml` for a test setup
+
+Using `docker compose`: 
+- create a `.env` based on `.env.dockerexample`
+- build `docker compose build`
+- run `docker compose up -d`
+- login at http://localhost:8000 and setup
+- stop `docker compose down` 
+- tear down (destroys data) `docker compose down -v`
+
+> [!NOTE] 
+> the compose is configured to use http. 
+> This is on purpose.
+  
 
 ## License
 
